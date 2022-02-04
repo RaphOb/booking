@@ -1,0 +1,22 @@
+version: "3.0"
+services:
+    registry:
+        image: registry:2
+        ports:
+            - "5000:5000"
+        deploy: 
+            replicas: 1
+            placement:
+                constraints:
+                    - node.hostname=={{node_manager_name}}
+    viz:
+        image: dockersamples/visualizer:latest
+        ports:
+            - "8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        deploy: 
+            replicas: 1
+            placement:
+                constraints:
+                    - node.hostname=={{node_manager_name}}

@@ -1,0 +1,198 @@
+---
+
+##################
+# Install Gitlab #   https://about.gitlab.com/install/#debian
+##################
+
+# - name: Check if GitLab is already installed.
+#   stat: path=/usr/bin/gitlab-ctl
+#   register: gitlab_file
+
+# # - name: Uninstall GitLab
+# #   shell: "sudo gitlab-ctl uninstall && sudo dpkg -P gitlab-ee && sudo rm -rf /opt/gitlab && sudo rm -rf /var/opt/gitlab && sudo rm -rf /etc/gitlab && sudo rm -rf /var/log/gitlab"
+# #   when: gitlab_file.stat.exists
+
+# # - name: Check if GitLab is uninstalled.
+# #   stat: path=/usr/bin/gitlab-ctl
+# #   register: gitlab_file
+
+# - name: Update apt and install required system packages
+#   apt:
+#     name:
+#       - openssh-server
+#       - ca-certificates
+#       - curl
+#       - perl
+#       - postfix
+#     state: latest
+#     update_cache: yes
+#   become: yes
+#   become_user: root
+#   when: not gitlab_file.stat.exists
+
+# - name: Add GitLab Repository
+#   shell: "curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash"
+#   when: not gitlab_file.stat.exists
+
+# # # Cette task peut bloquer a cause d'un problème connu lors d'une première installation,
+# # # relancer cette commande dans un second terminal si c'est le cas
+# # https://docs.gitlab.com/omnibus/common_installation_problems/#reconfigure-freezes-at-ruby_blocksupervise_redis_sleep-action-run
+# # https://stackoverflow.com/questions/62208800/gitlab-reconfigure-blocked-on-redis-after-reinstalling-gitlab-on-ubuntu-18-04-4l
+# # ##################################################
+# # # sudo systemctl restart gitlab-runsvdir.service #
+# # ##################################################
+# - name: Install GitLab Repository (can take ~5m)
+#   shell: "sudo EXTERNAL_URL=\"{{ gitlab_external_url }}\" apt-get install -y gitlab-ee"
+#   when: not gitlab_file.stat.exists
+#   register: install_output
+
+# # - debug: var=install_output
+
+# - name: GitLab HealthCheck
+#   uri: "url=http://{{ gitlab_ip }}"
+#   failed_when: not "'/users/signin' in response.url"
+
+
+
+# #######################
+# # Create Access Token #   # https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+# #######################
+
+# - name: Acces Token management
+#   block:
+#     - name: Check Access Token for root exists
+#       uri:
+#         url: "http://{{ gitlab_ip }}/api/v4/personal_access_tokens?user_id=1&private_token={{access_token}}"
+#         method: GET
+#       register: get_access_token
+#       failed_when: get_access_token.status != 200
+#   rescue:
+#     - name: Create Access Token with root user automatically
+#       command: "sudo gitlab-rails runner \"token = User.find_by_username('{{user_for_auto_access_token}}').personal_access_tokens.create(scopes: [:api, :read_user, :read_api, :read_repository, :write_repository, :sudo], name: 'Automation token'); token.set_token('{{ access_token }}'); token.save!\""
+#       when: gitlab_file.stat.exists
+#       register: response_AT
+#       ignore_errors: true   # Return error duplicate key but task works
+
+
+# ######################
+# # Create admin users #   # https://docs.gitlab.com/ee/api/users.html
+# ######################
+
+# - name: Create admin users for teachers
+#   uri:
+#     url: "http://{{ gitlab_ip }}/api/v4/users?private_token={{access_token}}"
+#     method: POST
+#     body_format: form-urlencoded
+#     body: 
+#     - [ admin, true ]
+#     - [ username , "{{ item.username }}"]
+#     - [ password , "{{ item.password }}"]
+#     - [ email, "{{ item.email }}" ]
+#     - [ name, "{{ item.name }}" ]
+#     status_code: [201, 409]
+#   loop: "{{ users }}"
+
+
+##################################
+# Deploy Gitlab Runner on Swarm  #
+##################################
+
+
+# - name: Send docker-compose.yml on manager
+#   copy:
+#     src: ../../../docker-compose.runner.yml
+#     dest: ~/docker-compose.runner.yml
+#     owner: "{{ default_remote_user }}"
+#     group: "{{ default_remote_user }}"
+#     mode: '0744'
+
+# - name: Install docker_stack/register requirements
+#   pip: name={{item}} state=latest executable=pip3
+#   become: yes
+#   become_user: root
+#   loop: [jsondiff, PyYaml]
+
+# - name: Deploy Runner from a compose file
+#   docker_stack:
+#     state: present
+#     name: runner
+#     compose:
+#       - ~/docker-compose.runner.yml
+#   register: deploy_runner
+
+# - debug: var=deploy_runner
+
+
+# - name: Register runner to GitLab
+#   docker_container:
+#     name: booking-runner
+#     image: "{{ gitlab_runner_container_image }}:{{ gitlab_runner_container_tag }}"
+#     command: |
+#       register
+#       --non-interactive
+#       --executor="docker"
+#       --docker-image="docker:stable"
+#       --docker-privileged
+#       --url='{{ gitlab_external_url }}'
+#       --registration-token='{{ gitlab_runner_token }}'
+#       --description='{{gitlab_runner_descr}}'
+#       --run-untagged="true"
+#       --locked="false"
+#       --access-level="not_protected"
+#     volumes:
+#       - booking-runner-config:/etc/gitlab-runner
+#     cleanup: True
+#     container_default_behavior: no_defaults
+#   become: yes
+#   become_user: root
+#   register: register_runner
+
+# - debug: var=register_runner
+  # when: (verified_runners.container.Output.find("Verifying runner... is removed") != -1) or
+  #       ((configured_runners.container.Output.find('\n' + gitlab_runner.name|default(ansible_hostname+'-'+gitlab_runner_index|string)) == -1) and
+  #       (gitlab_runner.state|default('present') == 'present'))
+
+
+
+
+
+#############################################
+# Deploy Runner nativ (for tests)           #
+#############################################
+
+
+- name: Create a volume
+  docker_volume:
+    name: booking-runner-config
+
+- name: "Install and start gitlab-runner inside container"
+  docker_container:
+    name: gitlab-runner
+    image: gitlab/gitlab-runner:latest
+    restart: yes
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - booking-runner-config:/etc/gitlab-runner
+    container_default_behavior: no_defaults
+
+- name: "Register the runner"
+  shell: >
+    docker run --rm -v booking-runner-config:/etc/gitlab-runner -v /var/run/docker.sock:/var/run/docker.sock gitlab/gitlab-runner:latest 
+    register \
+    --non-interactive \
+    --executor "docker" \
+    --docker-volumes "/var/run/docker.sock:/var/run/docker.sock" \
+    --docker-image "docker:latest" \
+    --docker-privileged \
+    --url {{ gitlab_external_url }} \
+    --registration-token {{ gitlab_runner_token }} \
+    --description {{gitlab_runner_descr}} \
+    --run-untagged="true" \
+    --locked="false" \
+    --access-level="not_protected" \
+    --docker-volumes "/certs/client" \
+    # --tag-list "docker,test" \
+  register: register_runner
+
+- debug: var=register_runner
+ 

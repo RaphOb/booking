@@ -1,0 +1,58 @@
+---
+
+# Add debugger to task you want to investigate in
+#debugger: always     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_debugger.html
+
+########################################
+# Pull TickStack images from DockerHub #
+########################################
+
+- name: Pull TickStack image from DockerHub
+  docker_image: name={{ item }} source=pull
+  loop: "{{ tickstack_array }}"
+  become: yes
+  become_user: root
+
+##############################
+# Push TickStack to Registry #
+##############################
+
+- name: Tag and push to local registry
+  docker_image:
+    name: "{{ item }}"
+    repository: "{{manager_ip}}:5000/{{item}}"
+    source: local
+    push: yes
+  loop: "{{ tickstack_array }}"
+  become: yes
+  become_user: root
+
+##############################
+# Deploy TickStack on Swarm  #
+##############################
+
+- name: Send docker-compose.yml on manager
+  copy:
+    src: ../../../docker-compose.tick.yml
+    dest: ~/docker-compose.tick.yml
+    owner: "{{ default_remote_user }}"
+    group: "{{ default_remote_user }}"
+    mode: '0744'
+
+- name: Set docker-compose.registry node name variable
+  template:
+    src: ../../../docker-compose.tick.yml
+    dest: ~/docker-compose.tick.yml
+
+- name: Install docker_stack requirements
+  pip: name={{item}} state=latest executable=pip3
+  become: yes
+  become_user: root
+  loop: [jsondiff, PyYaml]
+
+- name: Deploy TickStack from a compose file
+  docker_stack:
+    state: present
+    name: tick
+    compose:
+      - ~/docker-compose.tick.yml

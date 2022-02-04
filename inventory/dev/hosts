@@ -1,0 +1,11 @@
+[vms]
+worker1 ansible_host=172.16.233.18
+worker2 ansible_host=172.16.233.50
+manager ansible_host=172.16.233.97
+
+[docker_swarm_workers]
+worker1 ansible_host=172.16.233.18
+worker2 ansible_host=172.16.233.50
+
+[docker_swarm_manager]
+manager ansible_host=172.16.233.97

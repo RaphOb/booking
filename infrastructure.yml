@@ -1,0 +1,40 @@
+---
+
+# - name: Ansible HealthCheck
+#   hosts: vms
+#   remote_user: "{{ default_remote_user }}"     # Specify your own username here
+#   tasks:
+#     - name: Run echo hello world
+#       shell: echo 'Hello' from `hostname`
+#       register: output
+#     - debug: var=output.stdout_lines
+
+
+- name: Install docker and set Swarm mode
+  hosts: vms
+  remote_user: "{{ default_remote_user }}"
+  roles:
+    - docker_swarm          # Calls tasks from roles/docker_swarm/tasks
+  vars:
+    default_remote_user: obadia_r
+    manager_ip: "{{ hostvars['manager'].ansible_host }}"
+  
+
+- name: Deploy Registry on Swarm in Manager and give access to Worker
+  hosts: vms
+  remote_user: "{{ default_remote_user }}"
+  roles:
+    - docker_registry       # Calls tasks from roles/docker_registry/tasks
+  vars:
+    default_remote_user: obadia_r
+    manager_ip: "{{ hostvars['manager'].ansible_host }}"
+    node_manager_name: vm097
+
+- name: Deploy TickStack on Swarm in Manager
+  hosts: docker_swarm_manager
+  remote_user: "{{ default_remote_user }}"
+  roles:
+    - docker_tickstack       # Calls tasks from roles/docker_tickstack/tasks
+  vars:
+    default_remote_user: obadia_r
+    manager_ip: "{{ hostvars['manager'].ansible_host }}"

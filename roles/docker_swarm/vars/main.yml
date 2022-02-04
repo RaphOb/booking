@@ -1,0 +1,2 @@
+gpg_debian: https://download.docker.com/linux/debian/gpg
+deb_debian: https://download.docker.com/linux/debian stretch stable

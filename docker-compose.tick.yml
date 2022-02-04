@@ -1,0 +1,41 @@
+version: "3.0"
+services:
+    telegraf:
+        image: "{{manager_ip}}:5000/telegraf"
+        restart: always
+        ports:
+            - "8001:8094"
+        networks:
+            - tickstack
+        deploy: 
+            replicas: 1
+    influxdb:
+        image: "{{manager_ip}}:5000/influxdb"
+        restart: always
+        ports:
+            - "8002:8086"
+        networks:
+            - tickstack
+        deploy: 
+            replicas: 1
+    chronograf:
+        image: "{{manager_ip}}:5000/chronograf"
+        restart: always
+        ports:
+            - "8003:8888"
+        networks:
+            - tickstack
+        deploy: 
+            replicas: 1
+    kapacitor:
+        image: "{{manager_ip}}:5000/kapacitor"
+        restart: always
+        ports:
+            - "8004:9092"
+        networks:
+            - tickstack
+        deploy: 
+            replicas: 1
+
+networks:
+    tickstack:

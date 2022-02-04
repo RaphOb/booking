@@ -1,0 +1,178 @@
+---
+
+# Add debugger to task you want to investigate in
+#debugger: always     # https://docs.ansible.com/ansible/latest/user_guide/playbooks_debugger.html
+
+##################
+# Install Docker #
+##################
+- name:  Add update apt package
+  apt:
+    name:
+      - apt-transport-https
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Update apt and install required system packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: yes
+  become: yes
+  become_user: root
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: "{{ gpg_debian }}"
+    state: present
+  become: yes
+  become_user: root
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb {{ deb_debian }}
+    state: present
+  become: yes
+  become_user: root
+
+- name: Update apt and install docker-ce
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+  become: yes
+  become_user: root
+
+- name: Check Docker running
+  service: name=docker state=started enabled=yes
+
+
+# ##########################
+# # Install Docker Compose #
+# ##########################  
+
+- name: Download the current stable release of Docker Compose
+  when: inventory_hostname in groups['docker_swarm_manager']
+  shell: sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+- name: Apply executable permissions to the binary
+  when: inventory_hostname in groups['docker_swarm_manager']
+  command: sudo chmod +x /usr/local/bin/docker-compose
+
+- name: Check docker-compose is installed
+  when: inventory_hostname in groups['docker_swarm_manager']
+  command: docker-compose --version
+
+############################
+# Set Docker Swarm Manager #
+############################
+
+- name: Install python3-docker requirements
+  apt: name=python-docker state=latest
+  become: yes
+  become_user: root
+
+- name: Install docker pip module
+  pip: name=docker state=latest executable=pip3
+  become: yes
+  become_user: root
+
+- name: Set Swarm mode on manager
+  when: inventory_hostname in groups['docker_swarm_manager']
+  docker_swarm:
+    state: present
+    force: yes
+  become: yes
+  become_user: root
+  register: swarm_init
+
+- debug: var=swarm_init  # Print output
+
+
+
+############################
+# Set Docker Swarm Workers #
+############################
+
+- name: Set Worker nodes
+  when: inventory_hostname in groups['docker_swarm_workers']
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ manager_ip }}:2377"
+    join_token: "{{ hostvars['manager']['swarm_init'].swarm_facts.JoinTokens.Worker }}"
+    remote_addrs: [ "{{ manager_ip }}:2377" ]
+  become: yes
+  become_user: root
+  register: swarm_join
+
+- debug: var=swarm_join  # Print output
+
+######################
+# Unset Docker Swarm #
+######################
+# - name: Set Worker nodes
+#   when: inventory_hostname in groups['docker_swarm_workers']
+#   docker_swarm:
+#     state: absent
+#   become: yes
+#   become_user: root
+
+# - name: Remove Swarm mode on manager
+#   when: inventory_hostname in groups['docker_swarm_manager']
+#   docker_swarm:
+#     state: absent
+#     force: true
+#   become: yes
+#   become_user: root
+
+# - name: Remove docker pip module
+#   pip: name=docker state=absent executable=pip3
+#   become: yes
+#   become_user: root
+
+# - name: Remove python3-docker requirements
+#   apt: name=python-docker state=absent
+#   become: yes
+#   become_user: root
+
+
+# ####################
+# # Uninstall Docker #
+# ####################
+# # - name: Check Docker stopped
+# #   service: name=docker state=stopped enabled=no
+
+# - name: Remove docker-ce
+#   apt: name={{ item }} state=absent
+#   loop: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+#   become: yes
+#   become_user: root
+
+# - name: Remove Docker Repository
+#   apt_repository:
+#     repo: deb {{ deb_debian }}
+#     state: absent
+#   become: yes
+#   become_user: root
+
+# - name: Remove Docker GPG apt Key
+#   apt_key:
+#     url: "{{ gpg_debian }}"
+#     state: absent
+#   become: yes
+#   become_user: root
+
+# - name: Remove required system packages
+#   apt: name={{ item }} state=absent
+#   loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+#   become: yes
+#   become_user: root

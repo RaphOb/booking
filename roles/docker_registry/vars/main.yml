@@ -1,0 +1,8 @@
+registry_container_name: registry
+registry_port: 5000
+
+registry_insecure_conf_location: /etc/docker/daemon.json
+registry_insecure_conf_content: |
+      {
+        "insecure-registries" : ["172.16.233.97:5000"]
+      }

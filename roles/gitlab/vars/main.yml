@@ -1,0 +1,35 @@
+gitlab_repository: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh
+
+gitlab_external_url: http://172.16.233.97:8888/
+
+user_for_auto_access_token: root
+access_token: "{{ gitlab_access_token }}"     # from vault.yml
+
+gitlab_runner_token_test: "{{ gitlab_runner_token_test }}"     # from vault.yml (ProjectTest)
+gitlab_runner_token: "{{ gitlab_runner_token }}"               # from vault.yml (Booking)
+
+gitlab_runner_descr: "Runner pour projet Booking"
+
+users:
+  - username: rinaz_a
+    password: "{{ gitlab_users_pwd }}"        # from vault.yml
+    email: rinaz_a@etna-alternance.net
+    name: "Sélim Rinaz"
+
+  - username: hourli_a
+    password: "{{ gitlab_users_pwd }}"        # from vault.yml
+    email: augu.hourlier@gmail.com
+    name: "Augustin Hourlier"
+
+  - username: obadia_r
+    password: "{{ gitlab_users_pwd }}"        # from vault.yml
+    email: obadia_r@etna-alternance.net
+    name: "Raphael Obadia"
+
+  - username: rafina_d
+    password: "{{ gitlab_users_pwd }}"        # from vault.yml
+    email: rafina_d@etna-alternance.net
+    name: "Dany Rafina"
+
+gitlab_runner_container_image: gitlab/gitlab-runner
+gitlab_runner_container_tag: latest

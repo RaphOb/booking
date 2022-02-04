@@ -1,0 +1,77 @@
+---
+
+###############################################
+# Install and run Docker registry (HTTP only) #
+###############################################
+- name: Does container registry exists?
+  when: inventory_hostname in groups['docker_swarm_manager']
+  docker_container_info:
+    name: "{{registry_container_name}}"
+  register: result
+  become: yes
+  become_user: root
+
+# - name: Create and run container when not exists
+#   when: inventory_hostname in groups['docker_swarm_manager'] and not result.exists
+#   command: "sudo docker run -d -p {{registry_port}}:{{registry_port}} --restart=always --name {{registry_container_name}} registry:2"
+#   register: start_registry
+
+# - name: Start container when exists
+#   when: inventory_hostname in groups['docker_swarm_manager'] and result.exists
+#   command: "sudo docker start {{registry_container_name}}"
+
+##############################
+# Deploy Registry on Swarm   #
+##############################
+
+- name: Send docker-compose.yml on manager
+  when: inventory_hostname in groups['docker_swarm_manager'] and not result.exists
+  copy:
+    src: ../../../docker-compose.registry.yml
+    dest: ~/docker-compose.registry.yml
+    owner: "{{ default_remote_user }}"
+    group: "{{ default_remote_user }}"
+    mode: '0744'
+
+- name: Set docker-compose manager variable
+  template:
+    src: ../../../docker-compose.registry.yml
+    dest: ~/docker-compose.registry.yml
+
+- name: Install docker_stack requirements
+  when: inventory_hostname in groups['docker_swarm_manager'] and not result.exists
+  pip: name={{item}} state=latest executable=pip3
+  become: yes
+  become_user: root
+  loop: [jsondiff, PyYaml]
+
+- name: Deploy Registry from a compose file
+  when: inventory_hostname in groups['docker_swarm_manager'] and not result.exists
+  docker_stack:
+    state: present
+    name: "{{ registry_container_name }}"
+    compose:
+      - ~/docker-compose.registry.yml
+  register: deploy_registry
+
+- debug: var=deploy_registry
+
+- name: Set unsecured registry configuration on docker_swarm_workers (allow HTTP access)
+  copy:
+    dest: "{{registry_insecure_conf_location}}"
+    content: "{{registry_insecure_conf_content}}"
+  become: yes
+  become_user: root
+
+- name: Test Docker Registry
+  uri:
+    url: "http://{{manager_ip}}:{{registry_port}}/v2/"
+    status_code: 200
+    return_content: yes
+  register: test_docker_registry
+  until: test_docker_registry.content == '{}'
+  retries: 3
+  delay: 1
+
+- debug: var=test_docker_registry
+

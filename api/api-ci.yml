@@ -1,0 +1,41 @@
+stages:
+  - Test
+
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+flake8:
+  stage: Test
+  image: python:3.8-slim
+  allow_failure: true
+  before_script:
+    - python --version
+    - pip install flake8
+  script:
+    - flake8
+
+black:
+  stage: Test
+  image: python:3.8-slim
+  allow_failure: true
+  before_script:
+  - python --version
+  - pip install black
+  script:
+  - black . --check
+
+
+pytest:
+  stage: Test
+  image: python:3.8-slim
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
+  before_script:
+    - cd api/
+    - python --version
+    - pip install -r requirements.txt
+  script:
+    - pytest tests --junitxml report.xml --cov-report term --cov=booking
+  artifacts:
+    reports:
+      junit: report.xml

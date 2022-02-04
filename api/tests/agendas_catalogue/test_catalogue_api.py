@@ -1,0 +1,1 @@
+CATALOGUE_URL = "/catalogue"

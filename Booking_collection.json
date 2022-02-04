@@ -1,0 +1,256 @@
+{
+	"info": {
+		"_postman_id": "d6a8f245-814a-4c64-aed7-445ea5c76ada",
+		"name": "Booking",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic cHJvdmlzaW9uaW5nOld1RiN6JURGNzZAW2EpUno=",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "X-goog-resource-state",
+						"value": "update",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://api.booking-api-etna-clo5.online/health",
+					"protocol": "http",
+					"host": [
+						"api",
+						"booking-api-etna-clo5",
+						"online"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "health",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic cHJvdmlzaW9uaW5nOld1RiN6JURGNzZAW2EpUno=",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "X-goog-resource-state",
+								"value": "update",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api.booking-api-etna-clo5.online/health",
+							"protocol": "http",
+							"host": [
+								"api",
+								"booking-api-etna-clo5",
+								"online"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "16"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 30 Aug 2021 19:02:41 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "uvicorn"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"ok\"\n}"
+				}
+			]
+		},
+		{
+			"name": "hotels",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api.booking-api-etna-clo5.online/hotel",
+					"protocol": "http",
+					"host": [
+						"api",
+						"booking-api-etna-clo5",
+						"online"
+					],
+					"path": [
+						"hotel"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "hotels",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://api.booking-api-etna-clo5.online/hotel",
+							"protocol": "http",
+							"host": [
+								"api",
+								"booking-api-etna-clo5",
+								"online"
+							],
+							"path": [
+								"hotel"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "1442"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 30 Aug 2021 18:59:34 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "uvicorn"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"name\": \"Hotel 2\",\n        \"city\": \"Biarritz\",\n        \"street\": \"65 rue de la plage\",\n        \"nb_room\": 2,\n        \"nb_park\": 2,\n        \"nb_bb\": 2,\n        \"id\": \"3381a046-6721-47ab-8c70-d31864742129\",\n        \"rooms\": [\n            {\n                \"number\": 201,\n                \"id\": \"5ccb241a-a603-4a36-9869-9df89d484c55\",\n                \"hotel_id\": \"3381a046-6721-47ab-8c70-d31864742129\",\n                \"categorie_id\": \"980d973d-c1cc-4b55-be27-0e62ce11ff7f\"\n            },\n            {\n                \"number\": 200,\n                \"id\": \"6b2d684d-9f05-4fae-8b7b-2b30971558c9\",\n                \"hotel_id\": \"3381a046-6721-47ab-8c70-d31864742129\",\n                \"categorie_id\": \"980d973d-c1cc-4b55-be27-0e62ce11ff7f\"\n            }\n        ]\n    },\n    {\n        \"name\": \"Hotel 1\",\n        \"city\": \"Paris\",\n        \"street\": \"12 rue truc\",\n        \"nb_room\": 5,\n        \"nb_park\": 3,\n        \"nb_bb\": 2,\n        \"id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n        \"rooms\": [\n            {\n                \"number\": 104,\n                \"id\": \"16599a92-dfff-45f0-8368-07426bea6958\",\n                \"hotel_id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n                \"categorie_id\": \"db85f8ce-ad8e-40fe-8e1d-4c426747f222\"\n            },\n            {\n                \"number\": 101,\n                \"id\": \"3ee5ae84-200d-44a7-99af-9ef191f066fa\",\n                \"hotel_id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n                \"categorie_id\": \"8470726d-3abf-4711-97fc-cba11e265e2e\"\n            },\n            {\n                \"number\": 103,\n                \"id\": \"3f976ec6-6998-4665-81d0-80519061dacd\",\n                \"hotel_id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n                \"categorie_id\": \"db85f8ce-ad8e-40fe-8e1d-4c426747f222\"\n            },\n            {\n                \"number\": 100,\n                \"id\": \"4f7d813d-a34e-4eb4-bd64-850a8deb144b\",\n                \"hotel_id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n                \"categorie_id\": \"07308daa-7051-4ba6-9588-a41b3caab518\"\n            },\n            {\n                \"number\": 102,\n                \"id\": \"a7c36e52-49e6-4627-bdc1-4c12a8766edf\",\n                \"hotel_id\": \"6e18b358-ff2b-41a4-bd7b-7434abbdb2ab\",\n                \"categorie_id\": \"109f4b7b-e6d3-4e4e-93d0-78261235141c\"\n            }\n        ]\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "catalogue",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api.booking-api-etna-clo5.online/catalogue/",
+					"protocol": "http",
+					"host": [
+						"api",
+						"booking-api-etna-clo5",
+						"online"
+					],
+					"path": [
+						"catalogue",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "catalogue",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://api.booking-api-etna-clo5.online/catalogue/",
+							"protocol": "http",
+							"host": [
+								"api",
+								"booking-api-etna-clo5",
+								"online"
+							],
+							"path": [
+								"catalogue",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Length",
+							"value": "969"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 30 Aug 2021 19:02:32 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "uvicorn"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"hotels\": [\n        {\n            \"name\": \"Hotel 2\",\n            \"city\": \"Biarritz\",\n            \"street\": \"65 rue de la plage\",\n            \"nb_room\": 2,\n            \"nb_park\": 2,\n            \"nb_bb\": 2,\n            \"rooms\": [\n                {\n                    \"number\": 201,\n                    \"categorie\": {\n                        \"type\": 1,\n                        \"base_price\": 1000,\n                        \"max_people\": 5\n                    }\n                },\n                {\n                    \"number\": 200,\n                    \"categorie\": {\n                        \"type\": 1,\n                        \"base_price\": 1000,\n                        \"max_people\": 5\n                    }\n                }\n            ]\n        },\n        {\n            \"name\": \"Hotel 1\",\n            \"city\": \"Paris\",\n            \"street\": \"12 rue truc\",\n            \"nb_room\": 5,\n            \"nb_park\": 3,\n            \"nb_bb\": 2,\n            \"rooms\": [\n                {\n                    \"number\": 104,\n                    \"categorie\": {\n                        \"type\": 5,\n                        \"base_price\": 150,\n                        \"max_people\": 2\n                    }\n                },\n                {\n                    \"number\": 101,\n                    \"categorie\": {\n                        \"type\": 3,\n                        \"base_price\": 500,\n                        \"max_people\": 2\n                    }\n                },\n                {\n                    \"number\": 103,\n                    \"categorie\": {\n                        \"type\": 5,\n                        \"base_price\": 150,\n                        \"max_people\": 2\n                    }\n                },\n                {\n                    \"number\": 100,\n                    \"categorie\": {\n                        \"type\": 2,\n                        \"base_price\": 720,\n                        \"max_people\": 3\n                    }\n                },\n                {\n                    \"number\": 102,\n                    \"categorie\": {\n                        \"type\": 4,\n                        \"base_price\": 300,\n                        \"max_people\": 2\n                    }\n                }\n            ]\n        }\n    ],\n    \"fluctuations\": [\n        {\n            \"condition\": 8,\n            \"rate\": -0.05\n        },\n        {\n            \"condition\": 4,\n            \"rate\": -0.1\n        },\n        {\n            \"condition\": 2,\n            \"rate\": 0\n        },\n        {\n            \"condition\": 5,\n            \"rate\": 0.15\n        },\n        {\n            \"condition\": 3,\n            \"rate\": -0.1\n        },\n        {\n            \"condition\": 7,\n            \"rate\": 0\n        },\n        {\n            \"condition\": 6,\n            \"rate\": 0.15\n        },\n        {\n            \"condition\": 1,\n            \"rate\": 0\n        }\n    ]\n}"
+				}
+			]
+		}
+	]
+}

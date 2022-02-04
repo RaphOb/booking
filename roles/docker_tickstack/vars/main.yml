@@ -1,0 +1,8 @@
+registry_port: 5000
+
+tickstack_array: [ 
+  telegraf,
+  influxdb,
+  chronograf,
+  kapacitor
+]
